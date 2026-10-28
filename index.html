@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SCBF Winter Merch — Choose Your Pieces</title>
+<style>
+  :root{--green:#4BAC52;--green-d:#3c8a42;--navy:#264383;--ink:#1C2540;--muted:#8A95B2;--line:#E2E7F2;--bg:#F4F6FB;--card:#fff;}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);}
+  header.store{background:var(--navy);color:#fff;padding:18px 22px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;position:sticky;top:0;z-index:40}
+  .brand{display:flex;align-items:center;gap:12px}
+  .brand .logo{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#7ec24f,#2f7fc0);display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:20px}
+  .brand h1{font-size:18px;margin:0;line-height:1.15}
+  .brand span{font-size:12px;color:#c7d2e5}
+  .cart-btn{background:var(--green);border:none;color:#fff;padding:10px 16px;border-radius:8px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:14px}
+  .cart-btn:hover{background:var(--green-d)}
+  .cart-btn .count{background:#fff;color:var(--green-d);border-radius:20px;padding:1px 8px;font-size:12px;font-weight:700;min-width:20px;text-align:center}
+  .banner{background:#eaf5e4;color:#2f5a24;text-align:center;padding:10px 16px;font-size:13px;border-bottom:1px solid #d7ead0}
+  .wrap{max-width:1160px;margin:0 auto;padding:20px}
+  .filters{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 20px}
+  .filters button{background:#fff;border:1px solid var(--line);border-radius:20px;padding:7px 15px;font-size:13px;cursor:pointer;color:var(--ink)}
+  .filters button.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:18px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;display:flex;flex-direction:column;transition:box-shadow .15s}
+  .card:hover{box-shadow:0 6px 20px rgba(38,67,131,.10)}
+  .thumb{background:#f2f4f7;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
+  .thumb img.blank{width:100%;height:100%;object-fit:contain;mix-blend-mode:multiply}
+  .thumb img.art{position:absolute;z-index:2;pointer-events:none;object-fit:contain}
+  .ph{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:18px;background:linear-gradient(135deg,#eef2f7,#e2e8f1);color:#33415c}
+  .ph .icon{font-size:34px;opacity:.5;margin-bottom:8px}
+  .phname{font-weight:700;font-size:14px;line-height:1.3}
+  .phmeta{font-size:11px;color:#6b7280;margin-top:6px;text-transform:uppercase;letter-spacing:.04em}
+  .card .body{padding:12px 14px 16px;display:flex;flex-direction:column;gap:8px;flex:1}
+  .brandtag{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+  .pname{font-size:14px;font-weight:600;line-height:1.3;min-height:36px}
+  .row{display:flex;gap:8px}
+  select,input[type=number]{width:100%;padding:7px 8px;border:1px solid var(--line);border-radius:7px;font-size:13px;background:#fff;color:var(--ink)}
+  .qty{max-width:70px}
+  .add{margin-top:auto;background:var(--green);border:none;color:#fff;padding:9px;border-radius:8px;font-weight:600;cursor:pointer;font-size:13px}
+  .add:hover{background:var(--green-d)}
+  .add.added{background:var(--navy)}
+  .overlay{position:fixed;inset:0;background:rgba(20,28,60,.45);opacity:0;pointer-events:none;transition:opacity .2s;z-index:50}
+  .overlay.open{opacity:1;pointer-events:auto}
+  .drawer{position:fixed;top:0;right:0;height:100%;width:400px;max-width:92vw;background:#fff;transform:translateX(100%);transition:transform .25s;z-index:60;display:flex;flex-direction:column}
+  .drawer.open{transform:translateX(0)}
+  .drawer h2{margin:0;font-size:17px}
+  .drawer .dhead{padding:16px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+  .close{background:none;border:none;font-size:22px;cursor:pointer;color:var(--muted);line-height:1}
+  .items{flex:1;overflow-y:auto;padding:8px 18px}
+  .li{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+  .li img{width:56px;height:56px;object-fit:contain;background:#f2f4f7;border-radius:6px;mix-blend-mode:multiply}
+  .li .info{flex:1;font-size:13px}
+  .li .info b{display:block;font-weight:600;margin-bottom:2px}
+  .li .meta{color:var(--muted);font-size:12px}
+  .li .rm{background:none;border:none;color:#b91c1c;font-size:12px;cursor:pointer;padding:2px 0;margin-top:4px}
+  .empty{color:var(--muted);text-align:center;padding:40px 10px;font-size:14px}
+  .dfoot{border-top:1px solid var(--line);padding:16px 18px}
+  .note{font-size:12px;color:var(--muted);margin-bottom:12px}
+  .checkout{width:100%;background:var(--green);border:none;color:#fff;padding:13px;border-radius:9px;font-weight:700;cursor:pointer;font-size:15px}
+  .checkout:hover{background:var(--green-d)}
+  .cform label{display:block;font-size:12px;font-weight:600;margin:10px 0 4px}
+  .cform input,.cform textarea{width:100%;padding:9px;border:1px solid var(--line);border-radius:7px;font-size:13px;font-family:inherit}
+  .cform textarea{min-height:56px;resize:vertical}
+  .back{background:none;border:none;color:var(--navy);font-size:13px;cursor:pointer;padding:0;margin-bottom:6px}
+  .confirm{padding:24px 18px;font-size:14px;line-height:1.5}
+  .confirm .big{font-size:34px}
+  footer{max-width:1160px;margin:20px auto;padding:16px 20px;color:var(--muted);font-size:12px;border-top:1px solid var(--line)}
+</style>
+</head>
+<body>
+<header class="store">
+  <div class="brand">
+    <div class="logo">B</div>
+    <div><h1>St. Clair Butterfly Foundation</h1><span>Winter Merch — choose your pieces</span></div>
+  </div>
+  <button class="cart-btn" onclick="openCart()">★ My Picks <span class="count" id="cartCount">0</span></button>
+</header>
+<div class="banner">Browse the pieces available and add the ones you'd like to <b>My Picks</b>, then send your list to D2 Design. Every item is embroidered with the SCBF logo.</div>
+
+<div class="wrap">
+  <div class="filters" id="filters"></div>
+  <div class="grid" id="grid"></div>
+</div>
+<footer id="pagefoot"></footer>
+
+<div class="overlay" id="overlay" onclick="closeCart()"></div>
+<div class="drawer" id="drawer" aria-label="My picks">
+  <div class="dhead"><h2 id="drawerTitle">My Picks</h2><button class="close" onclick="closeCart()">×</button></div>
+  <div id="drawerBody"></div>
+</div>
+
+<script>
+/* === Edit this one line: where your customers' pick-lists are emailed === */
+const CONFIG = { orderEmail: "dustindrudy@gmail.com" };
+
+const SIZES = ["XS","S","M","L","XL","2XL","3XL","4XL"];
+const IMG = "https://cdn.inksoft.com/images/products/sps/sanmar/";
+const LOGO = {
+  dark:  "https://cdn.inksoft.com/UserArt/3636/maceyliteamcom/StClairButterfly_Darks1.png",
+  light: "https://cdn.inksoft.com/UserArt/3636/maceyliteamcom/StClairButterfly_Lightsbba89.png"
+};
+const SANMAR_K864W = "https://cdnm.sanmar.com/imglib/mresjpg/2024/f3/K864_white_flat_front.jpg";
+
+// Embroidered items only (no t-shirts). art = logo placement {L,T,W} as % of image box.
+const PRODUCTS = [
+  {cat:"Polos", style:"LK110SV", brand:"Port Authority", name:"Women's Dry Zone UV Micro-Mesh Sleeveless Polo", art:{L:57.2,T:25.2,W:6.9}, colors:[
+    {n:"White", img:IMG+"LK110SV/white/front_41555_41557_41554/500.png"},
+    {n:"River Blue Navy", img:IMG+"LK110SV/river_blue_navy/front_6652_7927_9610/500.png"}]},
+  {cat:"Polos", style:"K572", brand:"Port Authority", name:"Dry Zone Grid Polo", art:{L:57.4,T:25.3,W:7.8}, colors:[
+    {n:"White", img:IMG+"K572/white/front_39300_39300_39300/500.png"},
+    {n:"Black", img:IMG+"K572/black/front_6027_6027_6027/500.png"}]},
+  {cat:"Polos", style:"L572", brand:"Port Authority", name:"Women's Dry Zone Grid Polo", art:{L:60.4,T:27.7,W:7.8}, colors:[
+    {n:"White", img:IMG+"L572/white/front_42724_42724_42724/500.png"},
+    {n:"Black", img:IMG+"L572/black/front_6672_6672_6672/500.png"}]},
+  {cat:"Polos", style:"K500", brand:"Port Authority", name:"Silk Touch Polo", art:{L:58.4,T:21.2,W:6.9}, colors:[
+    {n:"White", img:IMG+"K500/white/front_34283_34423_35147/500.png"},
+    {n:"Black", img:IMG+"K500/black/front_4703_5013_4867/500.png"}]},
+  {cat:"Polos", style:"L500", brand:"Port Authority", name:"Women's Silk Touch Polo", art:{L:59.8,T:29.7,W:6.4}, colors:[
+    {n:"White", img:IMG+"L500/white/front_46313_46241_46248/500.png"},
+    {n:"Black", img:IMG+"L500/black/front_11957_11886_11898/500.png"}]},
+  {cat:"Polos", style:"K864", brand:"Port Authority", name:"C-FREE Snag-Proof Polo", art:{L:60.7,T:25.1,W:6.0}, colors:[
+    {n:"True Navy", img:IMG+"K864/true_navy/front_6207_6517_10432/500.png"},
+    {n:"White", img:SANMAR_K864W}]},
+  {cat:"Polos", style:"LK864", brand:"Port Authority", name:"Women's C-FREE Snag-Proof Polo", art:{L:60.8,T:26.8,W:6.9}, colors:[
+    {n:"White", img:IMG+"LK864/white/front_48775_48936_49554/500.png"},
+    {n:"True Navy", img:IMG+"LK864/true_navy/front_16181_16507_20520/500.png"}]},
+  {cat:"Quarter-Zips", style:"K112", brand:"Port Authority", name:"Dry Zone UV Micro-Mesh 1/4-Zip", art:{L:59.5,T:23.5,W:7.8}, colors:[
+    {n:"River Blue Navy", img:IMG+"K112/river_blue_navy/front_5823_7653_12915/500.png"}]},
+  {cat:"Quarter-Zips", style:"LK112", brand:"Port Authority", name:"Women's Dry Zone UV Micro-Mesh 1/4-Zip", art:{L:60.1,T:25.1,W:7.8}, colors:[
+    {n:"Deep Black", img:IMG+"LK112/deep_black/front_9019_9025_9030/500.png"}]},
+  {cat:"Quarter-Zips", style:"K210", brand:"Port Authority", name:"Wearever Signature Double Pique 1/4-Zip", art:{L:59.3,T:27.0,W:6.9}, colors:[
+    {n:"River Blue Navy", img:IMG+"K210/river_blue_navy/front_5087_8139_10620/500.png"}]},
+  {cat:"Quarter-Zips", style:"LK210", brand:"Port Authority", name:"Women's Wearever Signature Double Pique 1/4-Zip", art:{L:58.6,T:26.5,W:6.0}, colors:[
+    {n:"Deep Black", img:IMG+"LK210/deep_black/front_6074_6426_6250/500.png"}]},
+  {cat:"Sweaters & Cardigans", style:"SW2900", brand:"Port Authority", name:"Easy Care 1/4-Zip Sweater", art:{L:57.8,T:21.4,W:6.9}, colors:[
+    {n:"River Blue Navy", img:IMG+"SW2900/river_blue_navy/front_5366_8052_10184/500.png"}]},
+  {cat:"Sweaters & Cardigans", style:"LM1008", brand:"Port Authority", name:"Women's Concept Stretch Button-Front Cardigan", art:{L:58.3,T:27.1,W:7.8}, colors:[
+    {n:"Dress Blue Navy", img:IMG+"LM1008/dress_blue_navy/front_11786_13767_18660/500.png"}]},
+  {cat:"Sweaters & Cardigans", style:"LSW2890", brand:"Port Authority", name:"Women's Easy Care Open-Front Cardigan Sweater", art:{L:63.8,T:25.0,W:6.9}, colors:[
+    {n:"Deep Black", img:IMG+"LSW2890/deep_black/front_6923_7696_7504/500.png"}]},
+  {cat:"Jackets", style:"J407", brand:"Port Authority", name:"Essential Rain Jacket", art:{L:59.1,T:34.0,W:6.9}, colors:[
+    {n:"True Navy", img:IMG+"J407/true_navy/front_10393_11127_15596/500.png"}]},
+  {cat:"Jackets", style:"L407", brand:"Port Authority", name:"Women's Essential Rain Jacket", art:{L:59.6,T:34.6,W:6.9}, colors:[
+    {n:"Deep Black", img:IMG+"L407/deep_black/front_9247_9256_8899/500.png"}]}
+];
+
+const CATS = ["All","Polos","Quarter-Zips","Sweaters & Cardigans","Jackets"];
+let activeCat = "All";
+const cart = [];
+
+const filtersEl = document.getElementById("filters");
+CATS.forEach(c=>{
+  const b=document.createElement("button");
+  b.textContent=c; if(c===activeCat)b.className="active";
+  b.onclick=()=>{activeCat=c;[...filtersEl.children].forEach(x=>x.classList.remove("active"));b.classList.add("active");renderGrid();};
+  filtersEl.appendChild(b);
+});
+
+const grid = document.getElementById("grid");
+function renderGrid(){
+  grid.innerHTML="";
+  PRODUCTS.filter(p=>activeCat==="All"||p.cat===activeCat).forEach(p=>{
+    const i = PRODUCTS.indexOf(p);
+    const card=document.createElement("div");card.className="card";
+    const colorOpts=p.colors.map((c,ci)=>`<option value="${ci}">${c.n}</option>`).join("");
+    const sizeOpts=SIZES.map(s=>`<option>${s}</option>`).join("");
+    card.innerHTML=`
+      <div class="thumb" id="thumb${i}"></div>
+      <div class="body">
+        <div class="brandtag">${p.brand} • ${p.style}</div>
+        <div class="pname">${p.name}</div>
+        <div class="row">
+          <select id="color${i}" onchange="swapImg(${i})" ${p.colors.length<2?'disabled':''}>${colorOpts}</select>
+        </div>
+        <div class="row">
+          <select id="size${i}">${sizeOpts}</select>
+          <input class="qty" id="qty${i}" type="number" min="1" value="1">
+        </div>
+        <button class="add" id="add${i}" onclick="addToCart(${i})">Add to My Picks</button>
+      </div>`;
+    grid.appendChild(card);
+    setThumb(i);
+  });
+}
+function setThumb(i){
+  const p=PRODUCTS[i];
+  const ci=document.getElementById("color"+i)?+document.getElementById("color"+i).value:0;
+  const t=document.getElementById("thumb"+i);
+  t.innerHTML="";
+  const img=new Image();
+  img.alt=p.name; img.loading="lazy"; img.className="blank";
+  img.onerror=()=>phFail(i,ci);
+  img.onload=()=>addLogo(t,p,p.colors[ci]);
+  img.src=p.colors[ci].img;
+  t.appendChild(img);
+}
+function isLight(colorName){ return /white/i.test(colorName); }
+function addLogo(t,p,color){
+  if(!p.art) return;
+  const a=new Image();
+  a.className="art";
+  a.src = isLight(color.n) ? LOGO.light : LOGO.dark;
+  a.style.left=p.art.L+"%"; a.style.top=p.art.T+"%";
+  a.style.width=p.art.W+"%"; a.style.height=(p.art.W*0.692).toFixed(2)+"%";
+  a.onerror=()=>a.remove();
+  t.appendChild(a);
+}
+function phFail(i,ci){
+  const p=PRODUCTS[i];
+  document.getElementById("thumb"+i).innerHTML=
+    `<div class="ph"><div class="icon">👕</div><div class="phname">${p.name}</div><div class="phmeta">${p.brand} · ${p.style} · ${p.colors[ci].n}</div></div>`;
+}
+function swapImg(i){ setThumb(i); }
+
+function addToCart(i){
+  const p=PRODUCTS[i];
+  const ci=+document.getElementById("color"+i).value;
+  const size=document.getElementById("size"+i).value;
+  const qty=Math.max(1,parseInt(document.getElementById("qty"+i).value)||1);
+  const key=p.style+"|"+p.colors[ci].n+"|"+size;
+  const found=cart.find(x=>x.key===key);
+  if(found){found.qty+=qty;}
+  else{cart.push({key,style:p.style,name:p.name,brand:p.brand,color:p.colors[ci].n,img:p.colors[ci].img,size,qty});}
+  updateCount();
+  const btn=document.getElementById("add"+i);btn.textContent="Added ✓";btn.classList.add("added");
+  setTimeout(()=>{btn.textContent="Add to My Picks";btn.classList.remove("added");},900);
+}
+function updateCount(){document.getElementById("cartCount").textContent=cart.reduce((s,x)=>s+x.qty,0);}
+
+function openCart(){document.getElementById("overlay").classList.add("open");document.getElementById("drawer").classList.add("open");renderCart();}
+function closeCart(){document.getElementById("overlay").classList.remove("open");document.getElementById("drawer").classList.remove("open");}
+
+function renderCart(){
+  document.getElementById("drawerTitle").textContent="My Picks";
+  const body=document.getElementById("drawerBody");
+  if(!cart.length){body.innerHTML=`<div class="empty">No picks yet.<br>Add the pieces you'd like and they'll show up here.</div>`;return;}
+  const items=cart.map((x,idx)=>`
+    <div class="li">
+      <img src="${x.img}" alt="" onerror="this.style.visibility='hidden'">
+      <div class="info"><b>${x.name}</b>
+        <div class="meta">${x.brand} • ${x.style}<br>${x.color} · Size ${x.size} · Qty ${x.qty}</div>
+        <button class="rm" onclick="removeItem(${idx})">Remove</button>
+      </div>
+    </div>`).join("");
+  body.innerHTML=`
+    <div class="items">${items}</div>
+    <div class="dfoot">
+      <div class="note">No prices here — send your picks and D2 Design will follow up with wholesale pricing and availability.</div>
+      <button class="checkout" onclick="renderCheckout()">Send my picks to D2</button>
+    </div>`;
+}
+function removeItem(idx){cart.splice(idx,1);updateCount();renderCart();}
+
+function renderCheckout(){
+  document.getElementById("drawerTitle").textContent="Send My Picks";
+  const body=document.getElementById("drawerBody");
+  body.innerHTML=`
+    <div class="items cform">
+      <button class="back" onclick="renderCart()">← Back to my picks</button>
+      <label>Your name *</label><input id="cName" autocomplete="name">
+      <label>Email *</label><input id="cEmail" type="email" autocomplete="email">
+      <label>Phone</label><input id="cPhone" autocomplete="tel">
+      <label>Organization / team (optional)</label><input id="cTeam">
+      <label>Notes (optional)</label><textarea id="cNotes" placeholder="Anything we should know?"></textarea>
+    </div>
+    <div class="dfoot">
+      <div class="note">This sends your selected pieces to D2 Design. They'll reply with wholesale pricing and next steps.</div>
+      <button class="checkout" id="sendBtn" onclick="placeOrder()">Send my picks</button>
+    </div>`;
+}
+async function placeOrder(){
+  const name=val("cName"),email=val("cEmail");
+  if(!name||!email){alert("Please enter your name and email.");return;}
+  const lines=cart.map(x=>`  ${x.qty} x ${x.name} (${x.style}) - ${x.color}, Size ${x.size}`).join("\n");
+  const body=
+`SCBF merch picks
+
+From: ${name}
+Email: ${email}
+Phone: ${val("cPhone")||"-"}
+Organization/team: ${val("cTeam")||"-"}
+Notes: ${val("cNotes")||"-"}
+
+Pieces selected:
+${lines}`;
+  const btn=document.getElementById("sendBtn");
+  if(btn){btn.disabled=true;btn.textContent="Sending…";}
+  let sent=false;
+  try{
+    const res=await fetch("https://formsubmit.co/ajax/"+CONFIG.orderEmail,{
+      method:"POST",
+      headers:{"Content-Type":"application/json","Accept":"application/json"},
+      body:JSON.stringify({
+        _subject:"SCBF merch picks — "+name,
+        _template:"table",
+        _captcha:"false",
+        _replyto:email,
+        Name:name, Email:email, Phone:val("cPhone")||"-",
+        Organization:val("cTeam")||"-", Notes:val("cNotes")||"-",
+        Picks:lines
+      })
+    });
+    const data=await res.json().catch(()=>({}));
+    sent=res.ok && (data.success==="true"||data.success===true);
+  }catch(e){ sent=false; }
+  showConfirm(name,body,sent);
+}
+function showConfirm(name,body,sent){
+  document.getElementById("drawerTitle").textContent="Picks Sent";
+  let inner;
+  if(sent){
+    inner=`<div class="big">🦋</div>
+      <p><b>Thanks, ${name.split(" ")[0]}!</b></p>
+      <p>Your picks have been sent to D2 Design. They'll follow up with wholesale pricing and next steps — keep an eye on your inbox!</p>`;
+  }else{
+    const mailto=`mailto:${CONFIG.orderEmail}?subject=${encodeURIComponent("SCBF merch picks — "+name)}&body=${encodeURIComponent(body)}`;
+    try{ window.location.href=mailto; }catch(e){}
+    inner=`<div class="big">🦋</div>
+      <p><b>Thanks, ${name.split(" ")[0]}!</b></p>
+      <p>Your picks are ready to send to D2 Design. If your email app didn't open automatically, copy the list below and email it to ${CONFIG.orderEmail} — they'll follow up with wholesale pricing.</p>
+      <textarea readonly style="width:100%;min-height:150px;font-size:12px;border:1px solid #E2E7F2;border-radius:8px;padding:10px">${body}</textarea>
+      <button class="checkout" style="margin-top:10px" onclick="copySummary(this)">Copy my picks</button>`;
+  }
+  document.getElementById("drawerBody").innerHTML=`<div class="confirm">${inner}</div>`;
+  cart.length=0;updateCount();
+}
+function copySummary(btn){
+  const ta=document.querySelector(".confirm textarea");
+  ta.select();try{document.execCommand("copy");btn.textContent="Copied ✓";}catch(e){}
+}
+function val(id){return document.getElementById(id).value.trim();}
+
+document.getElementById("pagefoot").innerHTML =
+  "St. Clair Butterfly Foundation · Apparel by D2 Design Company · All pieces embroidered with the SCBF logo · Colors and sizes shown are available to order.";
+
+renderGrid();updateCount();
+</script>
+</body>
+</html>
