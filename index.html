@@ -27,6 +27,8 @@
   .thumb{background:#f2f4f7;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
   .thumb img.blank{width:100%;height:100%;object-fit:contain;mix-blend-mode:multiply}
   .thumb img.art{position:absolute;z-index:2;pointer-events:none;object-fit:contain}
+  .thumb img.model{width:100%;height:100%;object-fit:cover;object-position:center 18%}
+  .colorlbl{font-size:13px;color:var(--ink);padding:7px 2px;font-weight:500}
   .ph{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:18px;background:linear-gradient(135deg,#eef2f7,#e2e8f1);color:#33415c}
   .ph .icon{font-size:34px;opacity:.5;margin-bottom:8px}
   .phname{font-weight:700;font-size:14px;line-height:1.3}
@@ -142,10 +144,18 @@ const PRODUCTS = [
   {cat:"Jackets", style:"J407", brand:"Port Authority", name:"Essential Rain Jacket", art:{L:59.1,T:34.0,W:6.9}, colors:[
     {n:"True Navy", img:IMG+"J407/true_navy/front_10393_11127_15596/500.png"}]},
   {cat:"Jackets", style:"L407", brand:"Port Authority", name:"Women's Essential Rain Jacket", art:{L:59.6,T:34.6,W:6.9}, colors:[
-    {n:"Deep Black", img:IMG+"L407/deep_black/front_9247_9256_8899/500.png"}]}
+    {n:"Deep Black", img:IMG+"L407/deep_black/front_9247_9256_8899/500.png"}]},
+  {cat:"Long-Sleeve Polos", style:"K540LS", brand:"Port Authority", name:"Silk Touch Performance Long Sleeve Polo", photo:"model", colors:[
+    {n:"Steel Grey", img:"https://cdnp.sanmar.com/medias/sys_master/images/h42/h36/26733302349854/1200W_6409_SteelGrey-0-K540LSSteelGreyModelFront3/1200W-6409-SteelGrey-0-K540LSSteelGreyModelFront3.jpg"}]},
+  {cat:"Long-Sleeve Polos", style:"L540LS", brand:"Port Authority", name:"Women's Silk Touch Performance Long Sleeve Polo", photo:"model", colors:[
+    {n:"Steel Grey", img:"https://cdnp.sanmar.com/medias/sys_master/images/ha0/h1f/26512331309086/1200W_9641_SteelGrey-0-L540LSSteelGreyModelFront2/1200W-9641-SteelGrey-0-L540LSSteelGreyModelFront2.jpg"}]},
+  {cat:"Long-Sleeve Polos", style:"LK200LS", brand:"Port Authority", name:"Women's Wearever Signature Pique Long Sleeve Polo", photo:"model", colors:[
+    {n:"River Blue Navy", img:"https://cdnp.sanmar.com/medias/sys_master/images/hc2/hc5/28386645540894/1200W_60491_RiverBlNv-0-LK200LSRiverBlNvModelFront/1200W-60491-RiverBlNv-0-LK200LSRiverBlNvModelFront.jpg"}]},
+  {cat:"Long-Sleeve Polos", style:"K8000LS", brand:"Port Authority", name:"EZCotton Long Sleeve Polo", photo:"model", colors:[
+    {n:"Navy", img:"https://cdnp.sanmar.com/medias/sys_master/images/h6d/haa/26882782593054/1200W_8400_Navy-0-K8000LSNavyModelFront1/1200W-8400-Navy-0-K8000LSNavyModelFront1.jpg"}]}
 ];
 
-const CATS = ["All","Polos","Quarter-Zips","Sweaters & Cardigans","Jackets"];
+const CATS = ["All","Polos","Long-Sleeve Polos","Quarter-Zips","Sweaters & Cardigans","Jackets"];
 let activeCat = "All";
 const cart = [];
 
@@ -171,7 +181,9 @@ function renderGrid(){
         <div class="brandtag">${p.brand} • ${p.style}</div>
         <div class="pname">${p.name}</div>
         <div class="row">
-          <select id="color${i}" onchange="swapImg(${i})" ${p.colors.length<2?'disabled':''}>${colorOpts}</select>
+          ${p.colors.length>1
+            ? `<select id="color${i}" onchange="swapImg(${i})">${colorOpts}</select>`
+            : `<input type="hidden" id="color${i}" value="0"><div class="colorlbl">${p.colors[0].n}</div>`}
         </div>
         <div class="row">
           <select id="size${i}">${sizeOpts}</select>
@@ -189,9 +201,9 @@ function setThumb(i){
   const t=document.getElementById("thumb"+i);
   t.innerHTML="";
   const img=new Image();
-  img.alt=p.name; img.loading="lazy"; img.className="blank";
+  img.alt=p.name; img.loading="lazy"; img.className=p.photo==="model"?"model":"blank";
   img.onerror=()=>phFail(i,ci);
-  img.onload=()=>addLogo(t,p,p.colors[ci]);
+  if(p.photo!=="model") img.onload=()=>addLogo(t,p,p.colors[ci]);
   img.src=p.colors[ci].img;
   t.appendChild(img);
 }
